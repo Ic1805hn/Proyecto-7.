@@ -1,0 +1,550 @@
+/*
+ * PROGRAMA: PLANETARIO INTERACTIVO
+ * DESCRIPCIÓN: Sistema de gestión de información astronómica que permite consultar
+ *              planetas y administrar información de satélites naturales
+ * CARACTERÍSTICAS:
+ *   - Consulta de planetas por distancia al sol
+ *   - Consulta de planetas por inclinación orbital
+ *   - Registro, visualización y eliminación de satélites
+ *   - Interfaz de menú interactiva
+ */
+
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+
+/*
+ * ESTRUCTURA: Planeta
+ * PROPÓSITO: Almacenar información completa de un planeta
+ * CAMPOS:
+ *   - nombre: Nombre del planeta
+ *   - distancia_sol: Distancia media al sol en Unidades Astronómicas (UA)
+ *   - inclinacion_orbital: Inclinación de la órbita en grados
+ *   - periodo_orbital: Tiempo de traslación en años terrestres
+ *   - velocidad_orbital: Velocidad orbital promedio en km/s
+ */
+struct Planeta {
+    string nombre;
+    float distancia_sol;        // UA (Unidades Astronómicas)
+    float inclinacion_orbital;  // Grados
+    float periodo_orbital;      // Años terrestres
+    float velocidad_orbital;    // km/s
+};
+
+/*
+ * ESTRUCTURA: satelites
+ * PROPÓSITO: Almacenar información de satélites naturales de cada planeta
+ * CAMPOS:
+ *   - planeta_asociado: Planeta al que pertenece el satélite
+ *   - nombre_satelite: Nombre del satélite natural
+ *   - excentricidad_satelite: Medida de cuánto se desvía la órbita de ser circular
+ *   - periodo_orbital_satelite: Tiempo que tarda en orbitar su planeta (días)
+ *   - inclinacion_orbital_satelite: Inclinación de la órbita respecto al ecuador del planeta
+ */
+struct satelites {
+    string planeta_asociado;
+    string nombre_satelite;
+    float excentricidad_satelite;
+    float periodo_orbital_satelite;     // Días
+    float inclinacion_orbital_satelite; // Grados
+};
+
+/*
+ * ARRAY GLOBAL: satelite[]
+ * PROPÓSITO: Almacenar hasta 8 satélites (uno por planeta)
+ * NOTA: Inicializado solo con nombres de planetas, los datos de satélites
+ *       se agregan dinámicamente durante la ejecución del programa
+ */
+satelites satelite[] = {
+    {"neptuno"},
+    {"urano"},
+    {"saturno"},
+    {"jupiter"},
+    {"marte"},
+    {"tierra"},
+    {"venus"},
+    {"mercurio"},
+};
+
+/*
+ * ARRAY GLOBAL: planetas[]
+ * PROPÓSITO: Información de planetas ordenados por distancia del sol (mayor a menor)
+ * USO: Para consultas de planetas con distancia menor a la seleccionada
+ * ORDEN: Neptuno -> Mercurio (del más lejano al más cercano al sol)
+ */
+Planeta planetas[] = {
+    {"Neptuno", 30.05, 1.8, 164.79, 5.43},
+    {"Urano", 19.22, 0.8, 84.01, 6.80},
+    {"Saturno", 9.58, 2.5, 29.46, 9.68},
+    {"Jupiter", 5.20, 1.3, 11.86, 13.07},
+    {"Marte", 1.52, 1.9, 1.88, 24.07},
+    {"Tierra", 1.00, 0.0, 1.00, 29.78},
+    {"Venus", 0.72, 3.4, 0.62, 35.02},
+    {"Mercurio", 0.39, 7.0, 0.24, 47.36}
+};
+
+/*
+ * ARRAY GLOBAL: planetas2[]
+ * PROPÓSITO: Información de planetas ordenados por inclinación orbital (mayor a menor)
+ * USO: Para consultas de planetas con inclinación menor a la seleccionada
+ * ORDEN: Mercurio -> Tierra (de mayor a menor inclinación orbital)
+ */
+Planeta planetas2[] = {
+    {"Mercurio", 0.39, 7.0, 0.24, 47.36},
+    {"Venus", 0.72, 3.4, 0.62, 35.02},
+    {"Saturno", 9.58, 2.5, 29.46, 9.68},
+    {"Marte", 1.52, 1.9, 1.88, 24.07},
+    {"Neptuno", 30.05, 1.8, 164.79, 5.43},
+    {"Jupiter", 5.20, 1.3, 11.86, 13.07},
+    {"Urano", 19.22, 0.8, 84.01, 6.80}, 
+    {"Tierra", 1.00, 0.0, 1.00, 29.78},
+};
+
+int main(int argc, char** argv)
+{
+  (void)system("cls");  
+  
+  // PANTALLA DE BIENVENIDA - Portada del programa
+  cout << "\n====================================================================\n";
+  cout << "                       ✨⭐ PLANETARIO ⭐✨ \n";
+  cout << "====================================================================\n";
+  cout << "\n                        AUTORES DEL PROGRAMA:\n";
+  cout << "\n                   • Brahiam Nicolas Rodriguez Arroyo 🗿\n";
+  cout << "                     • 10422421484\n";
+  cout << "                    \n";
+  cout << "                     • Andres Felipe León Páez 🌠\n";
+  cout << "                     • 10422421664\n";
+  cout << "\n====================================================================\n";
+  cout << "\n               Presione ENTER para continuar...";
+  cin.get();  // Pausa para que el usuario lea la información
+  int menu;  // Variable para almacenar la opción seleccionada por el usuario
+do
+{
+  /*
+   * INTERFAZ: Menú principal
+   * - Presenta 7 opciones de funcionalidad
+   * - Captura selección del usuario
+   */
+  (void)system("cls");  // Limpiar pantalla antes de mostrar menú
+  cout << "\n====================================================================\n";
+  cout << "                       ✨⭐ PLANETARIO ⭐✨ \n";
+  cout << "====================================================================\n";
+  cout<<"Bienvenido al planetario Earth, a continuación te mostraré las opciones del menú \n";
+  cout<<"\n                      ===== MENÚ PRINCIPAL =====\n";
+  cout << "\n---------------------------------------------------------------------------------\n";
+  cout<<"1. Consultar los planetas con una distancia media al sol menor que la distancia seleccionada. \n";
+  cout<<"2. Consultar los planetas con una inclinación orbital menor a la del planeta seleccionado. \n";
+  cout<<"3. Registrar y Editar la información de un satélite natural.\n";
+  cout<<"4. Visualizar información de satélites.\n";
+  cout<<"5. Eliminar información de satélites.\n";
+  cout<<"6. Visualizar información de planetas.\n";
+  cout<<"7. Salir del menú.";
+  cout << "\n---------------------------------------------------------------------------------\n";
+  cout<<"\nSELECCIONE UN OPCIÓN: ";
+  cin>>menu;  // Captura la opción seleccionada
+  
+  /*
+   * SISTEMA DE NAVEGACIÓN: Switch para procesar opciones del menú
+   * Cada case maneja una funcionalidad específica del planetario
+   */
+  switch(menu)
+  {
+  /*
+   * CASO 1: Consulta de planetas por distancia al sol
+   * FUNCIONALIDAD: Muestra planetas con distancia menor a la seleccionada
+   * MÉTODO: Usa array 'planetas[]' ordenado por distancia (mayor a menor)
+   * LÓGICA: Al seleccionar un planeta, muestra todos los que están después
+   *         en el array (que tienen menor distancia al sol)
+   */
+  case 1:
+    int menu1;
+    do {
+      cout<<"\n";
+      cout<<"Bienvenido al módulo de información: Consulta de información de los planetas con una distancia media al sol menor a la seleccionada.";
+      cout<<"\nSeleccione una opción de las unidades atronómicas para consultar";
+      cout << "\n---------------------------------------------------------------------------------\n";
+      cout<<"1. Neptuno    30.05(UA).\n";
+      cout<<"2. Urano      19.22(UA).\n";
+      cout<<"3. Saturno    9.58(UA).\n";
+      cout<<"4. Júpiter    5.20(UA).\n";
+      cout<<"5. Marte      1.52(UA).\n";
+      cout<<"6. Tierra     1.00(UA).\n";
+      cout<<"7. Venus      0.72(UA).\n";
+      cout<<"8. Mercurio   0.39(UA).\n";
+      cout<<"9. Volver al menu principal\n";
+      cout << "---------------------------------------------------------------------------------\n";
+      cout<<"\nSELECCIONE UN OPCIÓN: ";
+      cin>>menu1;
+      
+      if(menu1 != 9) 
+      {
+        if(menu1 >= 1 && menu1 <= 8) 
+        {
+          for(int x=menu1-1;x < 8; x++)
+          {
+            cout<<"\n--------------------------------------------------------------------------------- \n";
+            cout << "Planeta: " << planetas[x].nombre << endl;
+            cout << "Distancia al Sol: " << planetas[x].distancia_sol << " UA" << endl;
+            cout << "Inclinación orbital: " << planetas[x].inclinacion_orbital << "°" << endl;
+            cout << "Periodo orbital: " << planetas[x].periodo_orbital << " años terrestres" << endl;
+            cout << "Velocidad orbital media: " << planetas[x].velocidad_orbital << " km/s" << endl;
+            cout << "------------------------------------------\n";
+          }
+        } 
+        else 
+        {
+          cout << "Opción no válida.\n";
+        }
+      }
+    } while (menu1 != 9);  // Repetir hasta que usuario elija volver al menú principal
+    break;
+    
+  /*
+   * CASO 2: Consulta de planetas por inclinación orbital
+   * FUNCIONALIDAD: Muestra planetas con inclinación menor a la seleccionada
+   * MÉTODO: Usa array 'planetas2[]' ordenado por inclinación (mayor a menor)
+   * LÓGICA: Al seleccionar un planeta, muestra todos los que están después
+   *         en el array (que tienen menor inclinación orbital)
+   */
+  case 2:
+    int menu2;
+    do {
+      cout<<"\n";
+      cout<<"Bienvenido al modulo de informacion: Consultar los planetas con una inclinación orbital menor a la del planeta seleccionado";
+      cout<<"\nSeleccione una opcion de las dependiendo de la inclinacion que desea consultar: ";
+      cout << "\n---------------------------------------------------------------------------------\n";
+      cout<<"1. Mercurio   7.0°.\n";
+      cout<<"2. Venus      3.4°.\n";
+      cout<<"3. Saturno    2.5°.\n";
+      cout<<"4. Marte      1.9°.\n";
+      cout<<"5. Neptuno    1.8°.\n";
+      cout<<"6. Júpiter    1.3°.\n"; 
+      cout<<"7. Urano      0.8°.\n";
+      cout<<"8. Tierra     0.0°.\n";
+      cout<<"9. Volver al menú principal\n";
+      cout << "---------------------------------------------------------------------------------\n";
+      cout<<"\nSELECCIONE UN OPCION: ";
+      cin>>menu2;
+
+      if(menu2 != 9) 
+      {
+        if(menu2 >= 1 && menu2 <= 8) 
+        {
+          for(int y=menu2-1;y < 8; y++)
+          {
+            cout<<"\n--------------------------------------------------------------------------------- \n";
+            cout << "Planeta: " << planetas2[y].nombre << endl;
+            cout << "Distancia al Sol: " << planetas2[y].distancia_sol << " UA" << endl;
+            cout << "Inclinación orbital: " << planetas2[y].inclinacion_orbital << "°" << endl;
+            cout << "Periodo orbital: " << planetas2[y].periodo_orbital << " años terrestres" << endl;
+            cout << "Velocidad orbital media: " << planetas2[y].velocidad_orbital << " km/s" << endl;
+            cout << "------------------------------------------\n";
+          }
+        } 
+      else 
+        {
+          cout << "Opción no válida.\n";
+        }
+      }
+    } while (menu2 != 9);  // Repetir hasta que usuario elija volver al menú principal
+    break;
+    
+  /*
+   * CASO 3: Registro y edición de satélites naturales
+   * FUNCIONALIDAD: Permite agregar información de satélites a cada planeta
+   * CARACTERÍSTICAS:
+   *   - Selección de planeta (1-8)
+   *   - Cada planeta puede tener hasta 5 satélites registrados
+   *   - Captura: nombre, excentricidad, periodo orbital, inclinación
+   */
+  case 3:
+    int menu3;
+    do{
+      cout<<"\nAquÍ puedes registrar o editar informaciÓn relacionado con diferentes satélites.\n";
+      cout<<"\nSeleccione el planeta al que deasea realizar añadir un registro de satélite: \n";
+      cout << "\n---------------------------------------------------------------------------------\n";
+      cout<<"1. Neptuno.\n";
+      cout<<"2. Urano.\n";
+      cout<<"3. Saturno.\n";
+      cout<<"4. Júpiter.\n";
+      cout<<"5. Marte.\n";
+      cout<<"6. Tierra.\n";
+      cout<<"7. Venus.\n";
+      cout<<"8. Mercurio.\n";
+      cout<<"9. Volver al menú principal\n";
+      cout << "---------------------------------------------------------------------------------\n";
+      cout<<"\nSELECCIONE UN OPCIÓN: ";
+      cin>>menu3;
+
+      if (menu3 >=1 && menu3 <= 8)
+      {
+        int espacio;
+        do{
+          cout<<"\nPara el planeta cuentas con 5 espacios para registrar satélites, selecciona la opción que quieras guardar un satélite: \n";
+          cout << "---------------------------------------------------------------------------------\n";
+          cout<<"1. satélite 1 \n";
+          cout<<"2. satélite 2 \n";
+          cout<<"3. satélite 3\n";
+          cout<<"4. satélite 4\n";
+          cout<<"5. satélite 5\n";
+          cout<<"6. Volver al menú anterior\n";  
+          cout << "---------------------------------------------------------------------------------\n";
+          cout<<"\nSELECCIONE UN OPCIÓN: ";
+          cin>>espacio;
+          
+          if(espacio >= 1 && espacio <= 5) {
+            cout << "\n=== Registro de Satélite ===\n";
+            cout << "Planeta asociado: " << satelite[menu3-1].planeta_asociado << endl;
+            cout << "Ingrese el nombre del satélite: ";
+            cin >> satelite[menu3-1].nombre_satelite;
+            cout << "Ingrese la excentricidad del satélite: ";
+            cin >> satelite[menu3-1].excentricidad_satelite;
+            cout << "Ingrese el periodo orbital del satélite (dias): ";
+            cin >> satelite[menu3-1].periodo_orbital_satelite;
+            cout << "Ingrese la inclinación orbital del satélite (grados): ";
+            cin >> satelite[menu3-1].inclinacion_orbital_satelite;
+            cout << "---------------------------------------------------------------------------------\n";
+            cout << "\nSatelite registrado exitosamente!\n";
+            cout << "---------------------------------------------------------------------------------\n";
+            break;
+          }
+          else if(espacio != 6) {
+            cout << "Opción no valida.\n";
+          }
+        } while (espacio != 6);
+      }
+      else if(menu3 != 9)
+      {
+        cout << "Opción no valida.\n";
+      }
+            
+    } while (menu3 != 9);  // Repetir hasta que usuario elija volver al menú principal
+    break;
+  
+  /*
+   * CASO 4: Visualización de información de satélites
+   * FUNCIONALIDAD: Muestra la información previamente guardada de satélites
+   * MÉTODO: Accede al array 'satelite[]' y muestra datos del índice seleccionado
+   * INTERFAZ: Menú de planetas -> Menú de espacios de satélites -> Mostrar datos
+   */
+  case 4:
+    int menu4;
+    do{
+      cout<<"\nAqui puedes visualizar información previamente guardada relacionada con diferentes satélites.\n";
+      cout<<"\nSeleccione el planeta al que deasea visualizar un satélite: \n";
+      cout << "\n---------------------------------------------------------------------------------\n";
+      cout<<"1. Neptuno.\n";
+      cout<<"2. Urano.\n";
+      cout<<"3. Saturno.\n";
+      cout<<"4. Júpiter.\n";
+      cout<<"5. Marte.\n";
+      cout<<"6. Tierra.\n";
+      cout<<"7. Venus.\n";
+      cout<<"8. Mercurio.\n";
+      cout<<"9. Volver al menú principal\n";
+      cout << "---------------------------------------------------------------------------------\n";
+      cout<<"\nSELECCIONE UN OPCIÓN: ";
+      cin>>menu4;
+
+      if (menu4 >=1 && menu4 <= 8)
+      {
+        int espacio;
+        do{
+          cout<<"\npara este planeta cuentas con 5 espacios para visualizar satelites, selecciona la opcion que quieras visualizar un satelite: \n";
+          cout << "---------------------------------------------------------------------------------\n";
+          cout<<"1. satélite 1 \n";
+          cout<<"2. satélite 2 \n";
+          cout<<"3. satélite 3\n";
+          cout<<"4. satélite 4\n";
+          cout<<"5. satélite 5\n";
+          cout<<"6. Volver al menú anterior\n";  
+          cout << "---------------------------------------------------------------------------------\n";
+          cout<<"\nSELECCIONE UN OPCIÓN: ";
+          cin>>espacio;
+
+          if(espacio >= 1 && espacio <= 5) {
+            cout << "\n=== Vista de Satélite ===\n";
+            cout << "Planeta asociado: " << satelite[menu4-1].planeta_asociado << endl;
+            cout << "Nombre del satelite: " << satelite[menu4-1].nombre_satelite << endl;;
+            cout << "Excentricidad del satelite: "<< satelite[menu4-1].excentricidad_satelite <<endl;
+            cout << "Periodo orbital del satelite (dias): "<< satelite[menu4-1].periodo_orbital_satelite <<endl;
+            cout << "Inclinacion orbital del satelite (grados): "<< satelite[menu4-1].inclinacion_orbital_satelite;
+            cout << "---------------------------------------------------------------------------------\n";
+            cout << "\nVisualización exitosa!\n";
+            cout << "---------------------------------------------------------------------------------\n";
+            break;
+          }
+          else if(espacio != 6) {
+            cout << "Opción no valida.\n";
+          }
+        } while (espacio != 6);
+      }
+      else if(menu4 != 9)
+      {
+        cout << "Opción no valida.\n";
+      }
+
+    } while (menu4 != 9);  // Repetir hasta que usuario elija volver al menú principal
+    break;
+    
+    /*
+     * CASO 5: Eliminación de información de satélites
+     * FUNCIONALIDAD: Permite eliminar datos de satélites previamente guardados
+     * CARACTERÍSTICAS:
+     *   - Muestra información antes de eliminar (confirmación visual)
+     *   - Solicita confirmación del usuario antes de proceder
+     *   - Limpia todos los campos del satélite seleccionado
+     * SEGURIDAD: Doble confirmación para evitar eliminaciones accidentales
+     */
+    case 5:
+      int menu5;
+      do{
+        cout<<"\nAqui puedes eliminar informacion previamente guardada relacionada con diferentes satelites.\n";
+        cout<<"\nSeleccione el planeta al que deasea eliminarle un satelite: \n";
+        cout << "\n---------------------------------------------------------------------------------\n";
+        cout<<"1. Neptuno.\n";
+        cout<<"2. Urano.\n";
+        cout<<"3. Saturno.\n";
+        cout<<"4. Júpiter.\n";
+        cout<<"5. Marte.\n";
+        cout<<"6. Tierra.\n";
+        cout<<"7. Venus.\n";
+        cout<<"8. Mercurio.\n";
+        cout<<"9. Volver al menú principal\n";
+        cout << "---------------------------------------------------------------------------------\n";
+        cout<<"\nSELECCIONE UN OPCIÓN: ";
+        cin>>menu5;
+
+        if (menu5 >=1 && menu5 <= 8)
+        {
+          int espacio;
+          do{
+            cout<<"\npara este planeta cuentas con 5 espacios para eliminar satelites, selecciona la opcion que quieras eliminar un satelite: \n";
+            cout << "---------------------------------------------------------------------------------\n";
+            cout<<"1. satélite 1 \n";
+            cout<<"2. satélite 2 \n";
+            cout<<"3. satélite 3\n";
+            cout<<"4. satélite 4\n";
+            cout<<"5. satélite 5\n";
+            cout<<"6. Volver al menú anterior\n";  
+            cout << "---------------------------------------------------------------------------------\n";
+            cout<<"\nSELECCIONE UN OPCIÓN: ";
+            cin>>espacio;
+
+            if(espacio >= 1 && espacio <= 5) {
+              cout << "\n=== Información del Satelite a Eliminar ===\n";
+              cout << "Planeta asociado: " << satelite[menu5-1].planeta_asociado << endl;
+              cout << "Nombre del satelite: " << satelite[menu5-1].nombre_satelite << endl;
+              cout << "Excentricidad del satelite: "<< satelite[menu5-1].excentricidad_satelite <<endl;
+              cout << "Periodo orbital del satelite (dias): "<< satelite[menu5-1].periodo_orbital_satelite <<endl;
+              cout << "Inclinación orbital del satelite (grados): "<< satelite[menu5-1].inclinacion_orbital_satelite <<endl;
+              cout << "\n---------------------------------------------------------------------------------\n";
+              
+              int confirmacion;
+              cout << "¿Estas seguro de que quieres eliminar este satélite?\n ";
+              cout << "1. Sí\n";
+              cout << "2. No\n";  // OPCIONES PARA CONFIRMAR LA ELIMINACION DE UN SATELITE
+              cout<<"\nSELECCIONE UN OPCIÓN: ";
+              cin >> confirmacion;
+              
+              if(confirmacion == 1) {
+                // Limpiar los datos del satélite
+                satelite[menu5-1].nombre_satelite = "";
+                satelite[menu5-1].excentricidad_satelite = 0.0;
+                satelite[menu5-1].periodo_orbital_satelite = 0.0;
+                satelite[menu5-1].inclinacion_orbital_satelite = 0.0;
+                
+                cout << "\n¡Satelite eliminado exitosamente!\n";
+              } else {
+                cout << "\nEliminación cancelada.\n";
+              }
+              cout << "---------------------------------------------------------------------------------\n";
+              break;
+            }
+            else if(espacio != 6) {
+              cout << "Opción no valida.\n";
+            }
+          } while (espacio != 6);
+        }
+        else if(menu5 != 9)
+        {
+          cout << "Opción no valida.\n";
+        }
+
+      } while (menu5 != 9);  // Repetir hasta que usuario elija volver al menú principal
+    break;
+    
+  /*
+   * CASO 6: Visualización completa de información de planetas
+   * FUNCIONALIDAD: Muestra todos los planetas con su información completa
+   * DATOS MOSTRADOS: nombre, distancia al sol, inclinación, periodo orbital, velocidad
+   * MÉTODO: Recorre array 'planetas[]' y muestra toda la información disponible
+   */
+  case 6:
+    cout<<"\n=== Planetas ===\n\n";
+    for(int i = 0; i < 8; i++) {
+      cout << "Planeta: " << planetas[i].nombre << endl;
+      cout << "Distancia al Sol: " << planetas[i].distancia_sol << " UA" << endl;
+      cout << "Inclinación orbital: " << planetas[i].inclinacion_orbital << "°" << endl;
+      cout << "Periodo orbital: " << planetas[i].periodo_orbital << " años terrestres" << endl;
+      cout << "Velocidad orbital media: " << planetas[i].velocidad_orbital << " km/s" << endl;
+      cout << "------------------------------------------\n";
+    }
+    break;
+    
+ /*
+  * CASO 7: Salida del programa
+  * FUNCIONALIDAD: Termina la ejecución del programa con mensaje de despedida
+  * CARACTERÍSTICAS:
+  *   - Mensaje de agradecimiento personalizado
+  *   - Arte ASCII temático del planetario
+  *   - Invitación a futuras visitas
+  */
+ case 7:
+    cout<<"\n";
+    cout<<"====================================================================\n";
+    cout<<"                  ¡GRACIAS POR USAR EL PLANETARIO!\n";
+    cout<<"====================================================================\n";
+    cout<<"\n";
+    cout<<"    ✨     ⭐      ✨         ⭐        ✨      ⭐       ✨\n";
+    cout<<"\n";
+    cout<<"  ⭐            .-\"\"\"\"\"\"\"\"\"\"-.\n";
+    cout<<"            .'                   '.\n";
+    cout<<"    ✨     /     OBSERVATORIO      \\\n";
+    cout<<"          |       PLANETARIO        |\n";
+    cout<<"  ⭐      |                         |        ⭐\n";
+    cout<<"          |    ¡GRACIAS POR TU      |\n";
+    cout<<"    ✨    |        VISITA!          |           ✨\n";
+    cout<<"          |                         |\n";
+    cout<<"  ⭐      |   Esperamos verte       |        ⭐\n";
+    cout<<"          |     pronto otra vez     |\n";
+    cout<<"    ✨    |                         |           ✨\n";
+    cout<<"          |  Sigue explorando el    |\n";
+    cout<<"  ⭐      |       universo...       |        ⭐\n";
+    cout<<"          |                         |\n";
+    cout<<"    ✨     \\                       /\n";
+    cout<<"            '.                   .'\n";
+    cout<<"  ⭐           '-.............-'\n";
+    cout<<"\n";
+    cout<<"    ✨     ⭐      ✨         ⭐        ✨      ⭐       ✨\n";
+    cout<<"\n";
+    cout<<"          🌌 ¡Hasta la próxima aventura! 🌌\n";
+    cout<<"====================================================================\n";
+    break;
+    
+  /*
+   * CASO DEFAULT: Manejo de opciones inválidas
+   * FUNCIONALIDAD: Captura selecciones no válidas del menú
+   * COMPORTAMIENTO: Muestra mensaje de error y regresa al menú principal
+   */
+  default:
+    cout<<"Este punto no esta registrado en el menu"<<endl;
+  }
+  
+}while (menu!=7);
+
+/*
+ * FIN DEL PROGRAMA
+ * El programa termina cuando el usuario selecciona salir
+ */
+}
